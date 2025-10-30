@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prosta strona logowania</title>
+  <style>
+    :root{--bg:#f3f4f6;--card:#fff;--primary:#2563eb;--muted:#6b7280}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;background:var(--bg);display:flex;align-items:center;justify-content:center;height:100vh}
+    .card{background:var(--card);padding:28px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.08);width:360px}
+    h1{margin:0 0 12px;font-size:20px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="text"],input[type="password"]{width:100%;padding:10px 12px;border:1px solid #e6e7ea;border-radius:8px;font-size:14px;box-sizing:border-box}
+    .row{display:flex;gap:8px;align-items:center;margin-top:12px}
+    .btn{background:var(--primary);color:white;border:none;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer}
+    .btn[disabled]{opacity:.6;cursor:default}
+    .muted{color:var(--muted);font-size:13px}
+    .links{display:flex;justify-content:space-between;margin-top:10px}
+    .error{color:#b91c1c;font-size:13px;margin-top:8px}
+    .success{color:#065f46;font-size:13px;margin-top:8px}
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>Logowanie do systemu</h1>
+    <form id="loginForm" autocomplete="off">
+      <div>
+        <label for="username">Nazwa użytkownika</label>
+        <input id="username" name="username" type="text" inputmode="text" required autofocus />
+      </div>
+
+      <div style="margin-top:12px">
+        <label for="password">Hasło</label>
+        <input id="password" name="password" type="password" required />
+      </div>
+
+      <div class="row" style="justify-content:space-between">
+        <label style="display:flex;align-items:center;gap:8px"><input id="remember" type="checkbox" /> Zapamiętaj</label>
+        <button type="submit" class="btn" id="submitBtn">Zaloguj</button>
+      </div>
+
+      <div class="links">
+        <a href="#" id="forgot">Zapomniałeś hasła?</a>
+        <a href="#" id="help">Pomoc</a>
+      </div>
+
+      <div id="message" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <script>
+    // Prosty skrypt symulujący logowanie po stronie klienta.
+    // UWAGA: to tylko demo. Prawdziwe logowanie musi odbywać się po stronie serwera.
+
+    const form = document.getElementById('loginForm');
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const rememberEl = document.getElementById('remember');
+    const submitBtn = document.getElementById('submitBtn');
+    const messageEl = document.getElementById('message');
+
+    function showMessage(text, type='error'){
+      messageEl.textContent = text;
+      messageEl.className = type === 'error' ? 'error' : 'success';
+    }
+
+    // Jeśli w localStorage jest "token", automatyczne przekierowanie (demo).
+    if(localStorage.getItem('demo_token')){
+      showMessage('Już zalogowany — przekierowuję...', 'success');
+      setTimeout(()=>{
+        // tutaj możesz zmienić na właściwe przekierowanie
+        window.location.href = '/landing.html';
+      }, 800);
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      messageEl.textContent = '';
+
+      const user = usernameEl.value.trim();
+      const pass = passwordEl.value;
+
+      if(!user || !pass){
+        showMessage('Wypełnij wszystkie pola.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Logowanie...';
+
+      // Symulacja zapytania do serwera
+      setTimeout(()=>{
+        // Przykładowa prosta walidacja: nazwa: admin, hasło: 1234
+        if(user === 'admin' && pass === '1234'){
+          showMessage('Zalogowano pomyślnie!', 'success');
+          if(rememberEl.checked){
+            // zapisujemy prosty token demo — nie rób tak w produkcji
+            localStorage.setItem('demo_token', btoa(user + ':' + Date.now()));
+          }
+          // Przekierowanie po krótkiej chwili
+          setTimeout(()=>{
+            window.location.href = '/landing.html';
+          }, 700);
+        } else {
+          showMessage('Nieprawidłowa nazwa użytkownika lub hasło.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Zaloguj';
+        }
+      }, 900);
+    });
+
+    // Drobne usprawnienia UX
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && document.activeElement !== submitBtn){
+        // pozwól formularzowi obsłużyć Enter standardowo
+      }
+    });
+
+    // Linki pomocnicze (tylko demo)
+    document.getElementById('forgot').addEventListener('click', (e)=>{e.preventDefault(); alert('Instrukcja resetu hasła: skontaktuj się z administratorem.');});
+    document.getElementById('help').addEventListener('click', (e)=>{e.preventDefault(); alert('Kontakt: pomoc@twojadomena.pl');});
+  </script>
+</body>
+</html>
